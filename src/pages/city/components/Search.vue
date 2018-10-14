@@ -1,12 +1,89 @@
 <template>
-  <div class="search">
-    <input type="text" class="search-input" placeholder="输入城市名或拼音">
+  <div>
+    <div class="search">
+      <input
+        v-model="keyword"
+        type="text"
+        class="search-input"
+        placeholder="输入城市名或拼音">
+    </div>
+    <div class="search-content" ref="search" v-show="keyword">
+      <ul>
+        <li
+          class="search-item border-bottom"
+          v-for="item of list"
+          :key="item.id"
+          @click="handleCityClick(item.name)"
+        >
+          {{item.name}}
+        </li>
+        <li
+          class="search-item border-bottom"
+          v-show="hasNoData"
+          style="text-align: center"
+        >
+          没有找到匹配数据
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script>
+import { mapMutations } from 'vuex'
+import Bscroll from 'better-scroll'
 export default {
-  name: 'CitySearch'
+  name: 'CitySearch',
+  props: {
+    cities: Object
+  },
+  data () {
+    return {
+      keyword: '',
+      list: [],
+      timer: null
+    }
+  },
+  computed: {
+    hasNoData () {
+      return !this.list.length
+    }
+  },
+  methods: {
+    handleCityClick (city) {
+      // this.$store.dispatch('changeCity', city) // 派发一个 changeCity action 传递 city
+      // this.$store.commit('changeCity', city) // 派发一个 changeCity mutations 传递 city
+      this.changeCity(city)
+      this.$router.push('./')
+    },
+    ...mapMutations(['changeCity']) // 派发一个 changeCity mutations
+  },
+  watch: {
+    keyword () {
+      if (this.timer) {
+        this.timer = null
+        clearTimeout(this.timer)
+      }
+      if (!this.keyword) {
+        this.list = []
+        return
+      }
+      this.timer = setTimeout(() => {
+        const result = []
+        for (let i in this.cities) {
+          this.cities[i].forEach((val) => {
+            if (val.spell.indexOf(this.keyword) > -1 || val.name.indexOf(this.keyword) > -1) {
+              result.push(val)
+            }
+          })
+        }
+        this.list = result
+      })
+    }
+  },
+  mounted () {
+    this.scroll = new Bscroll(this.$refs.search)
+  }
 }
 </script>
 
@@ -39,4 +116,17 @@ export default {
       padding-left: .2rem
       background: #fff
       color: #666
+  .search-content
+    overflow hidden
+    position absolute
+    top 1.58rem
+    background #eee
+    bottom 0
+    left 0
+    right 0
+    .search-item
+      line-height .62rem
+      padding-left .2rem
+      color #666
+      background #fff
 </style>

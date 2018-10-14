@@ -5,17 +5,20 @@
     </div>
     <div class="header-input"><span class="iconfont">&#xe632;</span>输入城市景点游玩主题</div>
     <router-link to="/city">
-      <div class="header-right">{{city}}<span class="iconfont icon-arrow">&#xe64a;</span></div>
+      <div class="header-right">{{ this.city }}<span class="iconfont icon-arrow">&#xe64a;</span></div>
+      <!--this.$store.state.city-->
     </router-link>
   </div>
 </template>
 
 <script>
+import { mapState, mapGetters } from 'vuex'
 export default {
-  props: {
-    city: String
-  },
-  name: 'HomeHeader'
+  name: 'HomeHeader',
+  computed: {
+    ...mapState(['city']), // 将vuex的数据 映射到city计算属性中
+    ...mapGetters(['doubleCity'])
+  }
 }
 </script>
 
@@ -42,7 +45,8 @@ export default {
       margin-top .12rem
     .header-right
       color #fff
-      width 1.24rem
+      min-width 1.04rem
+      padding 0 .1rem
       float right
       text-align center
       .icon-arrow
